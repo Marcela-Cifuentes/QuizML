@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Quiz de métricas</title>
+<style>
+:root{
+  --bg:#f3f7fd; --card:#ffffff; --ink:#14213d; --muted:#51617d; --line:#d6e0f1; --accent:#1f5fd6; --accent-ink:#ffffff;
+  --accent-soft:#e6eefc; --ok:#17794a; --warn:#a15c07; --warn-soft:#fff4de; --danger:#b3261e; --danger-soft:#fde8e6;
+  --shadow:0 1px 2px rgba(20,33,61,.06),0 4px 16px rgba(20,33,61,.06); --cell:#f6f9ff;
+}
+:root[data-theme="dark"]{
+  --bg:#0d1524; --card:#152238; --ink:#e7eefc; --muted:#9db0cf; --line:#2a3b5a; --accent:#6ea2ff; --accent-ink:#0b1424;
+  --accent-soft:#1c2f55; --ok:#5fd39b; --warn:#f2b45b; --warn-soft:#3a2c12; --danger:#ff8a80; --danger-soft:#43201e;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); --cell:#1b2c49;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1524; --card:#152238; --ink:#e7eefc; --muted:#9db0cf; --line:#2a3b5a; --accent:#6ea2ff; --accent-ink:#0b1424;
+    --accent-soft:#1c2f55; --ok:#5fd39b; --warn:#f2b45b; --warn-soft:#3a2c12; --danger:#ff8a80; --danger-soft:#43201e;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); --cell:#1b2c49;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+[hidden]{display:none!important}
+.wrap{max-width:880px;margin:0 auto;padding:0 16px 80px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0}
+.brand{font-weight:700;letter-spacing:.2px}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:13px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;min-height:42px}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible,input:focus-visible,.tab:focus-visible,.op:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:22px;margin:0 0 18px}
+h1{font-size:26px;line-height:1.2;margin:0 0 6px}
+h2{font-size:20px;margin:0 0 10px}
+h3{font-size:17px;margin:18px 0 6px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.pill{display:inline-block;background:var(--accent-soft);color:var(--accent);padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700}
+label.f{display:block;font-weight:600;margin:14px 0 6px}
+input[type=text]{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
+.err{background:var(--danger-soft);color:var(--danger);border-radius:10px;padding:10px 12px;margin-top:14px;font-weight:600}
+.note{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin:14px 0}
+.warnbox{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;margin:14px 0}
+.rules{margin:10px 0 0;padding-left:20px}
+.rules li{margin:4px 0}
+
+/* teoría */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font:inherit;font-weight:600;cursor:pointer}
+.tab[aria-selected=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.kicker{font-weight:800;color:var(--accent);letter-spacing:.3px;text-transform:uppercase;font-size:13px}
+.formula{background:var(--cell);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 14px;margin:8px 0;font-weight:700}
+.paso{display:flex;gap:10px;margin:5px 0}
+.paso b{flex:0 0 auto;background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:0 8px;min-width:68px;text-align:center}
+.metric{border-top:1px solid var(--line);padding-top:14px;margin-top:18px}
+table.mx{border-collapse:separate;border-spacing:0;margin:8px 0;width:100%;max-width:560px;font-size:15px}
+table.mx caption{caption-side:top;text-align:left;font-weight:700;padding-bottom:6px}
+table.mx th,table.mx td{border:1px solid var(--line);padding:9px 10px;text-align:center}
+table.mx th{background:var(--accent-soft);font-weight:600}
+table.mx th.rh{text-align:left;width:34%}
+table.mx td{background:var(--cell);font-weight:700;font-size:17px}
+table.mx td small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.mxrow{display:flex;gap:18px;flex-wrap:wrap}
+.mxrow>div{flex:1 1 300px;min-width:0}
+table.plain{border-collapse:collapse;width:100%;margin:8px 0;font-size:15px}
+table.plain th,table.plain td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+table.plain th{background:var(--accent-soft)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+/* quiz */
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:16px}
+.barin{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;padding:4px 12px;border-radius:10px;background:var(--accent-soft);color:var(--accent)}
+.timer.warn{background:var(--warn-soft);color:var(--warn)}
+.timer.danger{background:var(--danger-soft);color:var(--danger)}
+.prog{color:var(--muted);font-weight:600}
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.q{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.qtext{font-weight:600;margin-bottom:8px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+input.ans{width:150px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-weight:700;font-size:18px;text-align:right}
+.unit{color:var(--muted);font-weight:700}
+.ops{display:grid;gap:8px}
+.op{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;background:var(--card)}
+.op:hover{border-color:var(--accent)}
+.op input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent);flex:0 0 auto}
+.op.sel{border-color:var(--accent);background:var(--accent-soft)}
+.noselect,.noselect *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.noselect input{-webkit-user-select:text;user-select:text}
+body.bloqueo,body.bloqueo *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.bloqueo input{-webkit-user-select:text;user-select:text}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#14213d;color:#fff;padding:10px 16px;border-radius:10px;z-index:300;font-size:14px;max-width:90vw;box-shadow:var(--shadow)}
+.toast[hidden]{display:none}
+.help{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 14px;margin:0 0 16px}
+.help .formula{font-weight:600;margin:5px 0}
+
+/* superposiciones */
+.over{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,18,34,.92)}
+.over .box{background:var(--card);color:var(--ink);border-radius:18px;max-width:480px;width:100%;padding:24px;box-shadow:var(--shadow)}
+#cover{z-index:200;background:var(--bg)}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:34px;font-weight:800;letter-spacing:3px;text-align:center;background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:14px;margin:12px 0}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:g .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes g{to{transform:rotate(360deg)}}
+@media (max-width:520px){.card{padding:16px}input.ans{width:130px}h1{font-size:23px}}
+@media print{body{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">Inteligencia Artificial · Unidad 4<small>Universidad Libre · Ingeniería de Sistemas</small></div>
+    <button class="btn" id="btn-tema" type="button" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
+  </div>
+
+  <!-- 1. IDENTIFICACIÓN -->
+  <section id="s-ident" class="card">
+    <span class="pill">Quiz individual</span>
+    <h1 id="t-titulo">Quiz de métricas de evaluación</h1>
+    <p class="muted">Primero repasas la teoría y después resuelves el quiz. Cada estudiante recibe números distintos.</p>
+    <form id="f-ident" autocomplete="off" novalidate>
+      <label class="f" for="in-nombre">Nombre completo</label>
+      <input type="text" id="in-nombre" maxlength="80" autocomplete="name" required>
+      <label class="f" for="in-codigo">Código estudiantil</label>
+      <input type="text" id="in-codigo" maxlength="20" inputmode="text" required>
+      <div id="err-ident" class="err" role="alert" hidden></div>
+      <p style="margin-top:18px"><button class="btn primary" id="btn-entrar" type="submit">Entrar</button></p>
+    </form>
+  </section>
+
+  <!-- 2. TEORÍA -->
+  <section id="s-teoria" hidden>
+    <div class="card">
+      <div class="qhead"><div><span class="pill">Parte 1 · Repaso</span><h1 style="margin-top:8px">Cómo se mide si un modelo acierta</h1></div>
+      <button class="btn primary" id="btn-ir-quiz" type="button">Ir al quiz</button></div>
+      <p class="muted">Es la misma matriz de confusión que armaste en la Misión 6 del laboratorio. Lee con calma: en el quiz no habrá ayudas que te digan si una respuesta está bien o mal.</p>
+      <div id="aviso-curso" class="note" hidden></div>
+    </div>
+    <div class="card" id="teoria-card">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div id="tpanels"></div>
+      <div class="nav"><button class="btn" id="t-prev" type="button">Anterior</button><button class="btn" id="t-next" type="button">Siguiente</button></div>
+    </div>
+  </section>
+
+  <!-- 3. QUIZ -->
+  <section id="s-quiz" hidden>
+    <div class="bar"><div class="barin">
+      <div><span class="timer" id="timer" aria-live="off">--:--</span> <span class="prog" id="prog"></span></div>
+      <div class="row">
+        <button class="btn" id="btn-formulas" type="button">Fórmulas</button>
+        <button class="btn primary" id="btn-entregar" type="button">Entregar</button>
+      </div>
+    </div></div>
+    <div id="help" class="help" hidden></div>
+    <div id="quiz" class="noselect"></div>
+  </section>
+
+  <!-- 4. FINAL -->
+  <section id="s-fin" class="card" hidden>
+    <span class="pill">Entrega recibida</span>
+    <h1 style="margin-top:8px">Listo, quedó registrada tu entrega</h1>
+    <p id="fin-quien" class="muted"></p>
+    <p>Este es tu código de entrega. Guárdalo: es tu comprobante.</p>
+    <div class="code" id="fin-codigo">----</div>
+    <p id="fin-nota" hidden></p>
+    <p class="muted" id="fin-fecha"></p>
+    <div class="note">Tu docente recibirá el consolidado de notas. Aquí no se muestra si cada respuesta fue correcta.</div>
+    <p><button class="btn" id="btn-copiar" type="button">Copiar código</button></p>
+  </section>
+</div>
+
+<!-- Modales -->
+<div id="m-inicio" class="over" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="m-i-t">
+  <h2 id="m-i-t">Antes de empezar</h2>
+  <ul class="rules">
+    <li>Tienes <b id="m-dur">50</b> minutos desde que presiones "Iniciar quiz".</li>
+    <li>Solo hay <b>una entrega</b>. Después no se puede cambiar nada.</li>
+    <li>Si sales de la página o cambias de ventana, queda registrado y se le informa a tu docente.</li>
+    <li>Durante el quiz están bloqueados el clic derecho, copiar, pegar, imprimir y los atajos de teclado. Cada intento, cada salida y cada respuesta que escribes queda registrada con su hora y se le informa a tu docente.</li>
+    <li>El quiz no dice si una respuesta es correcta. Revisa tus cálculos antes de entregar.</li>
+    <li>Usa calculadora. Responde con 1 decimal (con coma o con punto).</li>
+  </ul>
+  <p style="margin-top:16px" class="row"><button class="btn primary" id="m-i-ok" type="button">Iniciar quiz</button><button class="btn" id="m-i-no" type="button">Volver a la teoría</button></p>
+  <div id="m-i-err" class="err" hidden></div>
+</div></div>
+
+<div id="m-entrega" class="over" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="m-e-t">
+  <h2 id="m-e-t">¿Entregar el quiz?</h2>
+  <p id="m-e-txt"></p>
+  <p class="muted">Una vez entregues no podrás cambiar nada.</p>
+  <p class="row" style="margin-top:14px"><button class="btn primary" id="m-e-ok" type="button">Sí, entregar</button><button class="btn" id="m-e-no" type="button">Seguir revisando</button></p>
+  <div id="m-e-err" class="err" hidden></div>
+</div></div>
+
+<div id="m-tiempo" class="over" hidden><div class="box" role="alertdialog" aria-modal="true">
+  <h2>Se cumplió el tiempo</h2>
+  <p id="m-t-txt">Tu quiz se está entregando con las respuestas que alcanzaste a escribir.</p>
+  <div id="m-t-err" class="err" hidden></div>
+  <p class="row"><button class="btn primary" id="m-t-re" type="button" hidden>Reintentar entrega</button></p>
+</div></div>
+
+<div id="cover" class="over" hidden><div class="box" role="alertdialog" aria-modal="true" aria-labelledby="cv-t">
+  <h2 id="cv-t">Saliste de la página</h2>
+  <p id="cv-txt">Esta salida quedó registrada y se le informa a tu docente.</p>
+  <p><button class="btn primary" id="cv-ok" type="button">Volver al quiz</button></p>
+</div></div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<template id="tpl-teoria">
+<!-- Teoría 1 -->
+<article data-titulo="1. Cuatro casos">
+  <div class="kicker">Teoría 1</div><h2>Acertar no es una sola cosa</h2>
+  <p><b>Teoría:</b> imagina un detector de humo en el pasillo del laboratorio. Solo pueden pasar cuatro cosas, y cada una pesa distinto.</p>
+  <table class="plain">
+    <tr><th>Qué pasó</th><th>Cómo se llama</th><th>Qué significa</th></tr>
+    <tr><td>Suena y sí había humo</td><td><b>Verdadero positivo (VP)</b></td><td>Detectó algo real.</td></tr>
+    <tr><td>Suena y no había humo</td><td><b>Falso positivo (FP)</b></td><td>Falsa alarma.</td></tr>
+    <tr><td>No suena y sí había humo</td><td><b>Falso negativo (FN)</b></td><td>Se le escapó un caso real; aquí es el error más peligroso.</td></tr>
+    <tr><td>No suena y no había humo</td><td><b>Verdadero negativo (VN)</b></td><td>Tranquilidad correcta.</td></tr>
+  </table>
+  <div class="note"><b>Vocabulario.</b> "Positivo" es lo que queremos detectar (humo, un ataque, un fraude) y "negativo" es todo lo demás; no significa "bueno" ni "malo". "Verdadero" o "falso" dicen si el sistema acertó o se equivocó. Un <b>falso negativo</b> es, entonces, un caso en el que el sistema dijo "no hay" y se equivocó.</div>
+</article>
+<!-- Teoría 2 -->
+<article data-titulo="2. La matriz">
+  <div class="kicker">Teoría 2</div><h2>La matriz de confusión</h2>
+  <p><b>Teoría:</b> es una tabla que cuenta, en una sola mirada, cuántas veces ocurrió cada uno de los cuatro casos. Se llena probando el modelo con <b>datos de prueba</b>: datos que no vio mientras se entrenaba.</p>
+  <p><b>Origen de los datos del ejemplo:</b> un filtro de spam probado con 1000 correos que no había visto.</p>
+  <table class="mx"><caption>Filtro de spam · 1000 correos de prueba</caption>
+    <tr><th></th><th>El filtro lo marcó spam</th><th>El filtro lo dejó pasar</th></tr>
+    <tr><th class="rh">Era spam</th><td>45<small>VP</small></td><td>15<small>FN</small></td></tr>
+    <tr><th class="rh">Era un correo legítimo</th><td>20<small>FP</small></td><td>920<small>VN</small></td></tr>
+  </table>
+  <h3>Cómo leerla</h3>
+  <div class="paso"><b>Paso 1</b><span>La fila de arriba son los spam reales: 45 + 15 = 60. El filtro atrapó 45 (VP) y dejó escapar 15 (FN).</span></div>
+  <div class="paso"><b>Paso 2</b><span>La fila de abajo son los correos legítimos: 20 + 920 = 940. Marcó 20 por error (FP) y dejó pasar bien 920 (VN).</span></div>
+  <div class="paso"><b>Paso 3</b><span>Todo suma 45 + 15 + 20 + 920 = 1000: cada correo cae en una sola casilla.</span></div>
+  <div class="note">Las <b>filas</b> dicen lo que realmente era y las <b>columnas</b> lo que dijo el sistema. Lee siempre los títulos: algunas herramientas ponen filas y columnas al revés.</div>
+</article>
+<!-- Teoría 3 -->
+<article data-titulo="3. Las cinco métricas">
+  <div class="kicker">Teoría 3</div><h2>Las cinco métricas, una por una</h2>
+  <div class="note"><b>Método para cualquier métrica:</b> (1) lee la pregunta que responde; (2) identifica en la matriz qué casillas van arriba y cuáles abajo de la división; (3) divide; (4) multiplica por 100 para pasar a porcentaje.<br><b>Símbolos:</b> VP, FP, FN y VN son los conteos de la matriz; "÷" es dividir y "×" es multiplicar. Todos los ejemplos usan la matriz del filtro de spam (VP = 45, FN = 15, FP = 20, VN = 920).</div>
+  <div class="metric"><h3>Exactitud</h3><p>Pregunta: de todos los casos, ¿cuántos clasificó bien?</p>
+    <div class="formula">Exactitud = (VP + VN) ÷ (VP + FP + FN + VN)</div>
+    <div class="paso"><b>Paso 1</b><span>Aciertos: VP + VN = 45 + 920 = 965.</span></div>
+    <div class="paso"><b>Paso 2</b><span>Total de casos: 45 + 20 + 15 + 920 = 1000.</span></div>
+    <div class="paso"><b>Paso 3</b><span>965 ÷ 1000 = 0,965.</span></div>
+    <div class="paso"><b>Paso 4</b><span>0,965 × 100 = <b>96,5 %</b>.</span></div></div>
+  <div class="metric"><h3>Precisión</h3><p>Pregunta: cuando el sistema dice "positivo", ¿qué proporción de veces tiene razón? Mira la columna de las alertas.</p>
+    <div class="formula">Precisión = VP ÷ (VP + FP)</div>
+    <div class="paso"><b>Paso 1</b><span>Total de alertas: 45 + 20 = 65.</span></div>
+    <div class="paso"><b>Paso 2</b><span>45 ÷ 65 = 0,6923.</span></div>
+    <div class="paso"><b>Paso 3</b><span>0,6923 × 100 = <b>69,2 %</b>.</span></div></div>
+  <div class="metric"><h3>Recall (sensibilidad)</h3><p>Pregunta: de todos los positivos reales, ¿cuántos encontró? Mira la fila de los positivos reales.</p>
+    <div class="formula">Recall = VP ÷ (VP + FN)</div>
+    <div class="paso"><b>Paso 1</b><span>Positivos reales: 45 + 15 = 60.</span></div>
+    <div class="paso"><b>Paso 2</b><span>45 ÷ 60 = 0,75.</span></div>
+    <div class="paso"><b>Paso 3</b><span>0,75 × 100 = <b>75,0 %</b>.</span></div></div>
+  <div class="metric"><h3>Especificidad</h3><p>Pregunta: de todos los negativos reales, ¿a cuántos dejó tranquilos? Mira la fila de los negativos reales.</p>
+    <div class="formula">Especificidad = VN ÷ (VN + FP)</div>
+    <div class="paso"><b>Paso 1</b><span>Negativos reales: 920 + 20 = 940.</span></div>
+    <div class="paso"><b>Paso 2</b><span>920 ÷ 940 = 0,9787.</span></div>
+    <div class="paso"><b>Paso 3</b><span>0,9787 × 100 = <b>97,9 %</b>.</span></div></div>
+  <div class="metric"><h3>F1</h3><p>Pregunta: ¿cómo resumo precisión y recall en un solo número que me castigue si alguno es bajo?</p>
+    <div class="formula">F1 = 2 × precisión × recall ÷ (precisión + recall)</div>
+    <div class="paso"><b>Paso 1</b><span>Numerador: 2 × 0,6923 × 0,75 = 1,0385.</span></div>
+    <div class="paso"><b>Paso 2</b><span>Denominador: 0,6923 + 0,75 = 1,4423.</span></div>
+    <div class="paso"><b>Paso 3</b><span>1,0385 ÷ 1,4423 = 0,72, es decir <b>72,0 %</b>.</span></div>
+    <div class="note"><b>No es el promedio simple.</b> Con precisión de 100 % y recall de 10 %, el promedio daría 55 %, pero el F1 da 18,2 %. El F1 baja mucho cuando una de las dos es muy baja.</div></div>
+</article>
+<!-- Teoría 4 -->
+<article data-titulo="4. La trampa">
+  <div class="kicker">Teoría 4</div><h2>La trampa de la exactitud</h2>
+  <p><b>Teoría:</b> imagina un vigilante en un banco donde casi nadie roba. Si siempre dice "todo en orden", casi siempre acierta, pero nunca atrapa a un ladrón.</p>
+  <p><b>Origen de los datos:</b> 10 000 transacciones de prueba, de las cuales 100 son fraudes (1 %). El modelo siempre responde "aprobar".</p>
+  <div class="paso"><b>Paso 1</b><span>Aciertos: las 9 900 transacciones legítimas (aprobó todas bien).</span></div>
+  <div class="paso"><b>Paso 2</b><span>Exactitud: 9 900 ÷ 10 000 = 0,99, es decir <b>99 %</b>.</span></div>
+  <div class="paso"><b>Paso 3</b><span>Recall: fraudes detectados ÷ fraudes reales = 0 ÷ 100 = <b>0 %</b>.</span></div>
+  <p>99 % de exactitud y ni un solo fraude detectado.</p>
+  <div class="note"><b>Conexión con la Unidad 3.</b> En el caso antifraude de la Clase 3 obtuvimos P(Fraude | Alerta) ≈ 0,0194. Esa probabilidad es la <b>precisión</b> del sistema: de cada 100 alertas, menos de 2 eran fraude real, porque el fraude era rarísimo (0,1 %). Es la misma idea con dos lenguajes: Bayes y matriz de confusión.</div>
+  <p><b>Lección:</b> cuando los positivos son raros, mira el recall y la precisión, no solo la exactitud.</p>
+</article>
+<!-- Teoría 5 -->
+<article data-titulo="5. Tira y afloja">
+  <div class="kicker">Teoría 5</div><h2>Precisión y recall: el tira y afloja</h2>
+  <p><b>Teoría:</b> piensa en una red de pesca. Una red muy ancha atrapa casi todos los peces buenos (recall alto), pero también mucha basura (precisión baja). Una red muy estrecha atrapa casi solo peces buenos (precisión alta), pero deja escapar muchos (recall bajo). Los modelos tienen un <b>umbral</b> que funciona igual.</p>
+  <p><b>Origen de los datos:</b> el mismo filtro de spam (60 spam reales y 940 correos legítimos) probado con dos umbrales.</p>
+  <table class="plain">
+    <tr><th></th><th>VP</th><th>FN</th><th>FP</th><th>VN</th><th>Precisión</th><th>Recall</th></tr>
+    <tr><td><b>Umbral estricto</b></td><td>30</td><td>30</td><td>2</td><td>938</td><td>30 ÷ 32 = 93,8 %</td><td>30 ÷ 60 = 50,0 %</td></tr>
+    <tr><td><b>Umbral permisivo</b></td><td>54</td><td>6</td><td>60</td><td>880</td><td>54 ÷ 114 = 47,4 %</td><td>54 ÷ 60 = 90,0 %</td></tr>
+  </table>
+  <p>Al subir uno suele bajar el otro. No existe un umbral perfecto: existe el adecuado según qué error cuesta más.</p>
+</article>
+<!-- Teoría 6 -->
+<article data-titulo="6. Qué vigilar">
+  <div class="kicker">Teoría 6</div><h2>¿Qué métrica vigilar? Y cómo no engañarse</h2>
+  <p><b>Teoría:</b> antes de escoger una métrica pregúntate: <b>¿qué error cuesta más?</b></p>
+  <table class="plain">
+    <tr><th>Si lo más costoso es...</th><th>Vigila...</th><th>Ejemplo</th></tr>
+    <tr><td>Que se escape un caso positivo (falso negativo)</td><td><b>Recall</b></td><td>Detector de incendios; tamizaje de una enfermedad grave</td></tr>
+    <tr><td>Dar una falsa alarma (falso positivo)</td><td><b>Precisión</b> (y la especificidad)</td><td>Un filtro que borra correos sin preguntar</td></tr>
+    <tr><td>Ambos errores cuestan igual y las clases están equilibradas</td><td><b>Exactitud</b></td><td>Separar facturas de dos tipos que aparecen casi por igual</td></tr>
+    <tr><td>Hay pocos positivos y quieres un solo resumen</td><td><b>F1</b></td><td>Detectar productos defectuosos en una línea de producción</td></tr>
+  </table>
+  <div class="note"><b>No las confundas:</b> la precisión mira las alertas que dio el sistema; la especificidad mira los negativos reales.</div>
+  <h3>Dos hábitos para no engañarse</h3>
+  <div class="paso"><b>Hábito 1</b><span>Evalúa siempre con datos de prueba. Con los de entrenamiento, un modelo puede memorizar y verse perfecto (como viste en la Misión 2 del laboratorio, al comparar entrenamiento y prueba).</span></div>
+  <div class="paso"><b>Hábito 2</b><span>Evalúa también por grupos. Una exactitud global cercana a 95 % puede esconder un 99 % en el grupo grande y apenas 60 % en un grupo pequeño con pocos datos de entrenamiento. Es una falla de equidad que el promedio no deja ver.</span></div>
+</article>
+</template>
+
+<script>
+(function () {
+'use strict';
+
+/* ======================= CONFIGURACIÓN (la docente edita aquí) ======================= */
+const CONFIG = {
+  API_URL: 'https://script.google.com/macros/s/AKfycbwBIq88RoiqD4_9MKMWj2f-0B2C3MaGoL75FRc9Ex3cEw3lngMDXhvKU8ENLML1RB-QrA/exec',                 // pega aquí la URL /exec de tu implementación de Apps Script
+  TEORIA_EN_QUIZ: 'formulario',// 'formulario' (solo las 5 fórmulas), 'completa' (toda la teoría) o 'ninguna'
+  AUTOENTREGAR: true,          // entrega sola cuando se acaba el tiempo
+  GUARDAR_CADA_MS: 3000
+};
+/* =================================================================================== */
+
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+const S = { codigo: '', nombre: '', estado: '', quiz: null, resp: {}, inicio: 0, offset: 0, duracion: 50, salidas: 0, segFuera: 0,
+            fueraDesde: 0, enQuiz: false, entregando: false, entregado: false, timer: null, saveT: null, tiempoCumplido: false, anticopia: false,
+            seq: 0, ev: [], evT: null, volcando: false, huboOculta: false };
+
+function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
+function h(tag, attrs) {
+  const el = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(k => { if (k === 'class') el.className = attrs[k]; else if (k === 'text') el.textContent = attrs[k]; else el.setAttribute(k, attrs[k]); });
+  for (let i = 2; i < arguments.length; i++) { const c = arguments[i]; if (c !== null && c !== undefined) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+  return el;
+}
+function show(id) { ['s-ident', 's-teoria', 's-quiz', 's-fin'].forEach(s => { $('#' + s).hidden = (s !== id); }); window.scrollTo(0, 0); }
+function pesoTxt(x) { return String(x).replace('.', ','); }
+
+/* ----------------------------------- tema ----------------------------------- */
+(function () {
+  const t = ls('quizm:tema'); if (t) document.documentElement.setAttribute('data-theme', t);
+  $('#btn-tema').addEventListener('click', () => {
+    const actual = document.documentElement.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const nuevo = actual === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nuevo); ls('quizm:tema', nuevo);
+  });
+})();
+
+/* ------------------------------------ API ------------------------------------ */
+async function api(action, data, opciones) {
+  if (!CONFIG.API_URL) throw new Error('Falta configurar API_URL en index.html (avisa a tu docente).');
+  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 35000);
+  try {
+    const res = await fetch(CONFIG.API_URL, Object.assign({ method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action: action }, data)), signal: ctrl.signal, redirect: 'follow' }, opciones || {}));
+    const j = await res.json();
+    if (j && j.ahora) S.offset = j.ahora - Date.now();
+    return j;
+  } catch (e) {
+    throw new Error(e.name === 'AbortError' ? 'El servidor tardó demasiado. Revisa tu conexión e inténtalo de nuevo.' : 'No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.');
+  } finally { clearTimeout(to); }
+}
+function ahoraServidor() { return Date.now() + S.offset; }
+
+/* ------------------------- registro de actividad ------------------------- */
+// Cada acción del estudiante se guarda como evento {n: número, e: tipo, t: hora, d: detalle}.
+// Se envían al servidor junto con el autoguardado (o solos, cada 4 s) y se reintentan si falla la conexión.
+function evKey() { return 'quizm:ev:' + S.codigo; }
+function evCargar(seqServidor) {
+  let g = {}; try { g = JSON.parse(ls(evKey()) || '{}'); } catch (e) { g = {}; }
+  const base = Number(seqServidor) || 0;
+  S.seq = Math.max(base, Number(g.seq) || 0, S.seq);
+  S.ev = (g.ev || []).filter(x => x && x.n > base);
+}
+function evPersistir() { ls(evKey(), JSON.stringify({ seq: S.seq, ev: S.ev })); }
+function ev(tipo, detalle) {
+  if (!S.codigo || S.entregado) return;
+  S.ev.push({ n: ++S.seq, e: tipo, t: ahoraServidor(), d: String(detalle || '').slice(0, 140) });
+  if (S.ev.length > 300) S.ev.splice(0, S.ev.length - 300);
+  evPersistir(); programarVolcado();
+}
+function evConfirmar(hasta) { S.ev = S.ev.filter(x => x.n > hasta); evPersistir(); }
+function programarVolcado() { clearTimeout(S.evT); S.evT = setTimeout(volcar, 4000); }
+function volcar() {
+  clearTimeout(S.evT);
+  if (!S.codigo || S.entregado || !S.ev.length || S.volcando) return;
+  const lote = S.ev.slice(0, 100), hasta = lote[lote.length - 1].n;
+  let bien = false; S.volcando = true;
+  api('eventos', { codigo: S.codigo, eventos: lote }, { keepalive: true })
+    .then(r => { if (r && r.ok) { bien = true; evConfirmar(hasta); } })
+    .catch(() => {})
+    .finally(() => { S.volcando = false; if (bien && S.ev.length) programarVolcado(); else if (!bien && S.ev.length) S.evT = setTimeout(volcar, 15000); });
+}
+
+/* ------------------------- bloqueos de la página ------------------------- */
+const activo = () => !!S.codigo && !S.entregado;
+let ultimoBloqueo = { k: '', t: 0 };
+function bloqueo(tipo, detalle, aviso) {
+  const ahora = Date.now(), k = tipo + '|' + detalle;
+  if (ultimoBloqueo.k === k && ahora - ultimoBloqueo.t < 350) return;   // evita contar dos veces el mismo intento
+  ultimoBloqueo = { k: k, t: ahora };
+  ev(tipo, detalle);
+  const t = $('#toast'); t.textContent = aviso || 'Esa acción está bloqueada durante el quiz y queda registrada.'; t.hidden = false;
+  clearTimeout(bloqueo.tt); bloqueo.tt = setTimeout(() => { t.hidden = true; }, 2400);
+}
+function comboTxt(e) {
+  const p = []; if (e.ctrlKey) p.push('Ctrl'); if (e.metaKey) p.push('Cmd'); if (e.altKey) p.push('Alt'); if (e.shiftKey) p.push('Shift');
+  let k = e.key || ''; if (k === ' ') k = 'Espacio'; else if (k.length === 1) k = k.toUpperCase();
+  if (['Control', 'Shift', 'Alt', 'Meta'].indexOf(k) < 0) p.push(k);
+  return p.join('+');
+}
+// Clic derecho (y pulsación larga en el celular): bloqueado en toda la página.
+document.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); if (activo()) bloqueo('clic_derecho', 'Clic derecho o pulsación larga'); }, true);
+// Copiar, cortar, pegar, arrastrar y seleccionar texto.
+[['copy', 'copiar'], ['cut', 'cortar'], ['paste', 'pegar']].forEach(par => {
+  document.addEventListener(par[0], e => { if (!activo()) return; e.preventDefault(); e.stopPropagation(); bloqueo(par[1], 'Con el menú o con el atajo'); }, true);
+});
+document.addEventListener('dragstart', e => { if (!activo()) return; e.preventDefault(); bloqueo('arrastrar', 'Arrastrar texto o imagen'); }, true);
+document.addEventListener('drop', e => { if (activo()) e.preventDefault(); }, true);
+document.addEventListener('selectstart', e => {
+  if (!activo()) return;
+  const el = e.target && e.target.nodeType === 3 ? e.target.parentElement : e.target;
+  if (!(el && el.closest && el.closest('input'))) e.preventDefault();
+}, true);
+// Teclas: se bloquea toda combinación con Ctrl/Cmd o Alt y las teclas F1 a F24; se permiten los números, la coma y las flechas.
+const ZOOM = ['+', '-', '=', '_', '0'];
+window.addEventListener('keydown', e => {
+  const k = e.key || '';
+  if (!activo()) { if (k === 'F12' || (e.ctrlKey && e.shiftKey && /^[ijc]$/i.test(k))) e.preventDefault(); return; }
+  if (k === 'Control' || k === 'Shift' || k === 'Meta' || k === 'OS') return;
+  if (k === 'Alt') { e.preventDefault(); return; }
+  if (e.getModifierState && e.getModifierState('AltGraph')) return;
+  const enCampo = !!(e.target && e.target.tagName === 'INPUT');
+  const mod = e.ctrlKey || e.metaKey, nombre = comboTxt(e), kk = k.toLowerCase();
+  if (k === 'PrintScreen') { e.preventDefault(); return; }
+  if (k === 'ContextMenu' || (e.shiftKey && k === 'F10')) { e.preventDefault(); bloqueo('clic_derecho', 'Menú contextual con el teclado'); return; }
+  if (/^F([1-9]|1[0-9]|2[0-4])$/.test(k)) { e.preventDefault(); e.stopPropagation(); bloqueo('tecla', nombre + (k === 'F12' ? ' (herramientas de desarrollo)' : '')); return; }
+  if (mod) {
+    if (ZOOM.indexOf(k) >= 0) return;                                   // zoom del navegador: es accesibilidad
+    if (enCampo && !e.shiftKey && /^[azy]$/.test(kk)) return;          // Ctrl+A / Z / Y dentro de la casilla
+    e.preventDefault(); e.stopPropagation();
+    const dev = e.shiftKey && /^[ijck]$/.test(kk);
+    const tipo = dev ? 'tecla' : kk === 'p' ? 'imprimir' : kk === 'c' ? 'copiar' : kk === 'x' ? 'cortar' : kk === 'v' ? 'pegar' : 'tecla';
+    bloqueo(tipo, nombre + (dev ? ' (herramientas de desarrollo)' : kk === 'u' ? ' (ver código fuente)' : ''));
+    return;
+  }
+  if (e.altKey) { e.preventDefault(); e.stopPropagation(); bloqueo('tecla', nombre); }
+}, true);
+window.addEventListener('keyup', e => {
+  if (activo() && e.key === 'PrintScreen') {
+    try { navigator.clipboard.writeText(' ').catch(function () { /* sin permiso: no pasa nada */ }); } catch (x) { /* sin soporte */ }
+    bloqueo('captura', 'Tecla Imprimir pantalla', 'La captura de pantalla queda registrada.');
+  }
+}, true);
+window.addEventListener('beforeprint', () => { if (activo()) bloqueo('imprimir', 'Se abrió el diálogo de impresión'); });
+// Posibles herramientas de desarrollo abiertas (indicio: la ventana "pierde" mucho espacio por un panel lateral o inferior).
+let devAbierto = false;
+function vigilarDevtools() {
+  if (!activo() || !window.matchMedia || !matchMedia('(pointer:fine)').matches) return;
+  const dw = window.outerWidth - window.innerWidth, dh = window.outerHeight - window.innerHeight;
+  const abierto = dw > 200 || dh > 300;
+  if (abierto && !devAbierto) bloqueo('devtools', 'La ventana perdió ' + Math.max(dw, dh) + ' px por un panel', 'Se detectó un panel junto a la página (posibles herramientas de desarrollo). Queda registrado.');
+  devAbierto = abierto;
+}
+setInterval(vigilarDevtools, 2000); window.addEventListener('resize', vigilarDevtools);
+window.addEventListener('offline', () => ev('sin_red', 'Sin conexión a internet'));
+window.addEventListener('online', () => { ev('con_red', 'Volvió la conexión'); volcar(); });
+
+/* -------------------------------- identificación -------------------------------- */
+$('#f-ident').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const err = $('#err-ident'); err.hidden = true;
+  const nombre = $('#in-nombre').value.trim(), codigo = $('#in-codigo').value.trim();
+  if (nombre.length < 5 || !codigo) { err.textContent = 'Escribe tu nombre completo y tu código estudiantil.'; err.hidden = false; return; }
+  const b = $('#btn-entrar'); b.disabled = true; b.textContent = 'Verificando...';
+  try {
+    const r = await api('entrar', { nombre: nombre, codigo: codigo });
+    if (!r.ok) throw new Error(r.error || 'No se pudo entrar.');
+    S.codigo = codigo.toUpperCase().replace(/\s+/g, ''); S.nombre = r.nombre; S.duracion = r.duracionMin || 50; S.estado = r.estado;
+    evCargar(r.seq); document.body.classList.add('bloqueo');
+    if (r.titulo) { $('#t-titulo').textContent = r.titulo; document.title = r.titulo; }
+    if (r.estado === 'entregado') { mostrarFinal(r.comprobante); return; }
+    iniciarTeoria(r.estado);
+  } catch (e) { err.textContent = e.message; err.hidden = false; }
+  finally { b.disabled = false; b.textContent = 'Entrar'; }
+});
+
+/* ----------------------------------- teoría ----------------------------------- */
+let tIdx = 0, tPaneles = [];
+function construirTeoria() {
+  if (tPaneles.length) return;
+  const tpl = $('#tpl-teoria').content.cloneNode(true);
+  tPaneles = $$('article', tpl);
+  const tabs = $('#tabs'), cont = $('#tpanels');
+  tPaneles.forEach((a, i) => {
+    const t = h('button', { class: 'tab', type: 'button', role: 'tab', 'aria-selected': 'false', text: a.getAttribute('data-titulo') });
+    t.addEventListener('click', () => irTeoria(i)); tabs.appendChild(t); a.hidden = true; cont.appendChild(a);
+  });
+}
+function irTeoria(i) {
+  tIdx = Math.max(0, Math.min(tPaneles.length - 1, i));
+  tPaneles.forEach((a, k) => { a.hidden = (k !== tIdx); });
+  $$('.tab', $('#tabs')).forEach((t, k) => t.setAttribute('aria-selected', k === tIdx ? 'true' : 'false'));
+  $('#t-prev').disabled = tIdx === 0; $('#t-next').disabled = tIdx === tPaneles.length - 1;
+  $('#teoria-card').scrollIntoView({ block: 'start' });
+  ev('teoria', 'Pestaña: ' + tPaneles[tIdx].getAttribute('data-titulo'));
+}
+$('#t-prev').addEventListener('click', () => irTeoria(tIdx - 1));
+$('#t-next').addEventListener('click', () => irTeoria(tIdx + 1));
+function iniciarTeoria(estado) {
+  construirTeoria(); show('s-teoria'); irTeoria(0); window.scrollTo(0, 0);
+  const av = $('#aviso-curso');
+  if (estado === 'en_curso') { av.hidden = false; av.textContent = 'Tienes un quiz en curso. Su tiempo sigue corriendo. Presiona "Ir al quiz" para continuar donde ibas.'; }
+  else av.hidden = true;
+  $('#btn-ir-quiz').textContent = estado === 'en_curso' ? 'Continuar el quiz' : 'Ir al quiz';
+}
+$('#btn-ir-quiz').addEventListener('click', () => {
+  if (S.estado === 'en_curso') { arrancarQuiz(); return; }
+  $('#m-dur').textContent = S.duracion; $('#m-i-err').hidden = true; $('#m-inicio').hidden = false; $('#m-i-ok').focus();
+});
+$('#m-i-no').addEventListener('click', () => { $('#m-inicio').hidden = true; });
+$('#m-i-ok').addEventListener('click', () => arrancarQuiz());
+
+/* ------------------------------------ quiz ------------------------------------ */
+async function arrancarQuiz() {
+  const okb = $('#m-i-ok'); okb.disabled = true; const err = $('#m-i-err'); err.hidden = true;
+  try {
+    const r = await api('iniciar', { codigo: S.codigo });
+    if (!r.ok) throw new Error(r.error || 'No se pudo iniciar.');
+    if (r.estado === 'entregado') { $('#m-inicio').hidden = true; mostrarFinal(r.comprobante); return; }
+    S.quiz = r.quiz; S.inicio = r.inicio; S.duracion = r.duracionMin || S.duracion; S.estado = 'en_curso';
+    S.salidas = r.salidas || 0; S.segFuera = r.segFuera || 0; evCargar(r.seq);
+    let local = {}; try { local = JSON.parse(ls('quizm:' + S.codigo) || '{}'); } catch (e) { local = {}; }
+    const localResp = local.resp || {}, serverResp = r.borrador || {};
+    S.resp = Object.assign({}, serverResp, (local.ts || 0) >= (r.ultimo || 0) ? localResp : {});
+    S.salidas = Math.max(S.salidas, local.salidas || 0); S.segFuera = Math.max(S.segFuera, local.segFuera || 0);
+    $('#m-inicio').hidden = true;
+    renderQuiz(); show('s-quiz'); S.enQuiz = true; activarAnticopia(); iniciarReloj();
+  } catch (e) { err.textContent = e.message; err.hidden = false; $('#m-inicio').hidden = false; }
+  finally { okb.disabled = false; }
+}
+
+function matrizEl(m) {
+  const t = h('table', { class: 'mx' });
+  if (m.titulo) t.appendChild(h('caption', { text: m.titulo }));
+  t.appendChild(h('tr', null, h('th', { text: '' }), h('th', { text: m.cols[0] }), h('th', { text: m.cols[1] })));
+  t.appendChild(h('tr', null, h('th', { class: 'rh', text: m.filas[0] }), h('td', { text: String(m.celdas[0][0]) }), h('td', { text: String(m.celdas[0][1]) })));
+  t.appendChild(h('tr', null, h('th', { class: 'rh', text: m.filas[1] }), h('td', { text: String(m.celdas[1][0]) }), h('td', { text: String(m.celdas[1][1]) })));
+  return t;
+}
+function renderQuiz() {
+  const cont = $('#quiz'); cont.textContent = '';
+  cont.appendChild(h('div', { class: 'note', text: 'Cuando la respuesta es un porcentaje, escríbela con 1 decimal (por ejemplo 87,4). Las respuestas se guardan solas mientras escribes.' }));
+  S.quiz.forEach(b => {
+    const card = h('div', { class: 'card' });
+    card.appendChild(h('div', { class: 'qhead' }, h('h2', { text: 'Pregunta ' + b.num + '. ' + b.titulo }), h('span', { class: 'pill', text: pesoTxt(b.peso) + ' pts' })));
+    b.enunciado.forEach(t => card.appendChild(h('p', { text: t })));
+    if (b.matrices && b.matrices.length) {
+      const fila = h('div', { class: 'mxrow' }); b.matrices.forEach(m => fila.appendChild(h('div', null, matrizEl(m)))); card.appendChild(fila);
+    }
+    b.preguntas.forEach((q, i) => {
+      const qq = h('div', { class: 'q' }); qq.appendChild(h('div', { class: 'qtext', text: String.fromCharCode(97 + i) + ') ' + q.texto }));
+      if (q.tipo === 'opc') {
+        const ops = h('div', { class: 'ops', role: 'radiogroup', 'aria-label': q.texto });
+        q.opciones.forEach(o => {
+          const inp = h('input', { type: 'radio', name: q.id, value: o.id });
+          if (S.resp[q.id] === o.id) inp.checked = true;
+          const lab = h('label', { class: 'op' + (inp.checked ? ' sel' : '') }, inp, h('span', { text: o.texto }));
+          inp.addEventListener('change', () => { S.resp[q.id] = o.id; $$('.op', ops).forEach(x => x.classList.remove('sel')); lab.classList.add('sel'); cambio(); ev('resp', 'P' + b.num + String.fromCharCode(97 + i) + ': ' + o.texto.slice(0, 70)); });
+          ops.appendChild(lab);
+        });
+        qq.appendChild(ops);
+      } else {
+        const inp = h('input', { class: 'ans', type: 'text', inputmode: q.tipo === 'int' ? 'numeric' : 'decimal', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', 'aria-label': q.texto, 'data-q': q.id, placeholder: q.tipo === 'int' ? '0' : '0,0', maxlength: '12' });
+        inp.value = S.resp[q.id] || '';
+        inp.addEventListener('input', () => {
+          const v = inp.value.replace(/[^0-9.,%]/g, '');
+          if (v !== inp.value) inp.value = v;
+          if (v === '') delete S.resp[q.id]; else S.resp[q.id] = v;
+          cambio();
+        });
+        inp.addEventListener('change', () => ev('resp', 'P' + b.num + String.fromCharCode(97 + i) + ': ' + (inp.value || '(vacío)')));
+        qq.appendChild(h('div', { class: 'row' }, inp, h('span', { class: 'unit', text: q.unidad || '' })));
+      }
+      card.appendChild(qq);
+    });
+    cont.appendChild(card);
+  });
+  armarAyuda(); actualizarProgreso();
+}
+function totalPreguntas() { return S.quiz.reduce((n, b) => n + b.preguntas.length, 0); }
+function respondidas() { let n = 0; S.quiz.forEach(b => b.preguntas.forEach(q => { if (S.resp[q.id]) n++; })); return n; }
+function actualizarProgreso() { $('#prog').textContent = respondidas() + ' de ' + totalPreguntas() + ' respondidas'; }
+function cambio() { actualizarProgreso(); persistir(); programarGuardado(); }
+function persistir() { ls('quizm:' + S.codigo, JSON.stringify({ resp: S.resp, ts: ahoraServidor(), salidas: S.salidas, segFuera: Math.round(S.segFuera) })); }
+function programarGuardado() { clearTimeout(S.saveT); S.saveT = setTimeout(guardarYa, CONFIG.GUARDAR_CADA_MS); }
+function guardarYa() {
+  if (!S.enQuiz || S.entregado) return;
+  clearTimeout(S.saveT); persistir();
+  const lote = S.ev.slice(0, 100), hasta = lote.length ? lote[lote.length - 1].n : 0;
+  api('guardar', { codigo: S.codigo, borrador: S.resp, salidas: S.salidas, segFuera: Math.round(S.segFuera), eventos: lote }, { keepalive: true })
+    .then(r => { if (r && r.ok && hasta) evConfirmar(hasta); }).catch(() => {});
+}
+
+/* ------------------------------ ayuda (fórmulas) ------------------------------ */
+function armarAyuda() {
+  const box = $('#help'); box.textContent = '';
+  const modo = CONFIG.TEORIA_EN_QUIZ;
+  const b = $('#btn-formulas');
+  if (modo === 'ninguna') { b.hidden = true; return; }
+  b.hidden = false; b.textContent = modo === 'completa' ? 'Teoría' : 'Fórmulas';
+  if (modo === 'formulario') {
+    box.appendChild(h('div', { text: 'VP, FP, FN y VN son los conteos de la matriz de confusión (acierto/error sobre positivos y negativos). Multiplica por 100 para pasar a porcentaje.' }));
+    ['Exactitud = (VP + VN) ÷ (VP + FP + FN + VN)', 'Precisión = VP ÷ (VP + FP)', 'Recall = VP ÷ (VP + FN)', 'Especificidad = VN ÷ (VN + FP)', 'F1 = 2 × precisión × recall ÷ (precisión + recall)']
+      .forEach(t => box.appendChild(h('div', { class: 'formula', text: t })));
+  } else {
+    construirTeoria();
+    const tpl = $('#tpl-teoria').content.cloneNode(true);
+    $$('article', tpl).forEach(a => { box.appendChild(a); a.appendChild(h('hr')); });
+  }
+}
+$('#btn-formulas').addEventListener('click', () => { const b = $('#help'); b.hidden = !b.hidden; ev('formulas', b.hidden ? 'Lo cerró' : 'Lo abrió'); });
+
+/* ----------------------------------- reloj ----------------------------------- */
+function iniciarReloj() {
+  clearInterval(S.timer); tick(); S.timer = setInterval(tick, 1000);
+}
+function tick() {
+  if (S.entregado) return;
+  const rest = Math.floor(S.duracion * 60 - (ahoraServidor() - S.inicio) / 1000);
+  const t = $('#timer'); const m = Math.floor(Math.abs(rest) / 60), s = Math.abs(rest) % 60;
+  t.textContent = (rest < 0 ? '-' : '') + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  t.className = 'timer' + (rest <= 60 ? ' danger' : rest <= 300 ? ' warn' : '');
+  if (rest <= 0 && !S.tiempoCumplido) tiempoCumplido();
+}
+function tiempoCumplido() {
+  S.tiempoCumplido = true; ev('tiempo', CONFIG.AUTOENTREGAR ? 'Entrega automática' : 'Sigue sin entregar');
+  if (!CONFIG.AUTOENTREGAR) { $('#prog').textContent = 'Tiempo cumplido: entrega cuando estés listo.'; return; }
+  $('#m-entrega').hidden = true; $('#m-tiempo').hidden = false; setTimeout(() => entregar(true), 2500);
+}
+
+/* ---------------------------------- entrega ---------------------------------- */
+$('#btn-entregar').addEventListener('click', () => {
+  const faltan = totalPreguntas() - respondidas();
+  $('#m-e-txt').textContent = faltan > 0 ? 'Te faltan ' + faltan + ' preguntas por responder. Lo que dejes en blanco cuenta como no respondido.' : 'Respondiste todas las preguntas.';
+  $('#m-e-err').hidden = true; $('#m-entrega').hidden = false; $('#m-e-ok').focus(); ev('confirma', faltan + ' sin responder');
+});
+$('#m-e-no').addEventListener('click', () => { $('#m-entrega').hidden = true; ev('cancela', ''); });
+$('#m-e-ok').addEventListener('click', () => entregar(false));
+$('#m-t-re').addEventListener('click', () => entregar(true));
+async function entregar(auto) {
+  if (S.entregando || S.entregado) return;
+  S.entregando = true;
+  const okb = $('#m-e-ok'); okb.disabled = true; okb.textContent = 'Entregando...';
+  const errs = [$('#m-e-err'), $('#m-t-err')]; errs.forEach(e => { e.hidden = true; }); $('#m-t-re').hidden = true;
+  try {
+    if (S.fueraDesde) retorno();
+    const r = await api('entregar', { codigo: S.codigo, respuestas: S.resp, salidas: S.salidas, segFuera: Math.round(S.segFuera), eventos: S.ev.slice(0, 300) });
+    if (!r.ok) throw new Error(r.error || 'No se pudo entregar.');
+    S.entregado = true; clearInterval(S.timer); ls('quizm:' + S.codigo, null); ls(evKey(), null);
+    $('#m-entrega').hidden = true; $('#m-tiempo').hidden = true; $('#cover').hidden = true;
+    mostrarFinal(r.comprobante);
+  } catch (e) {
+    const el = auto ? errs[1] : errs[0]; el.textContent = e.message + ' Tus respuestas siguen guardadas en este equipo.'; el.hidden = false;
+    if (auto) { $('#m-t-re').hidden = false; $('#m-t-txt').textContent = 'No se pudo entregar todavía.'; }
+  } finally { S.entregando = false; okb.disabled = false; okb.textContent = 'Sí, entregar'; }
+}
+function mostrarFinal(c) {
+  S.enQuiz = false; S.entregado = true; $('#m-inicio').hidden = true; document.body.classList.remove('bloqueo');
+  $('#fin-quien').textContent = S.nombre + ' · código ' + S.codigo;
+  $('#fin-codigo').textContent = c.codigoEntrega || '----';
+  $('#fin-fecha').textContent = c.entrega ? 'Entregado el ' + c.entrega + ' (hora de Colombia).' : '';
+  const n = $('#fin-nota'); if (c.nota !== undefined) { n.hidden = false; n.textContent = 'Tu nota: ' + String(c.nota).replace('.', ','); } else n.hidden = true;
+  show('s-fin');
+}
+$('#btn-copiar').addEventListener('click', () => {
+  const t = $('#fin-codigo').textContent;
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { $('#btn-copiar').textContent = 'Código copiado'; }).catch(() => { $('#btn-copiar').textContent = 'Copia el código a mano'; });
+});
+
+/* ---------------------------------- anticopia ---------------------------------- */
+function salida() {
+  if (!S.enQuiz || S.entregado || S.entregando || S.fueraDesde) return;
+  S.fueraDesde = Date.now(); S.salidas++; S.huboOculta = document.hidden; persistir();
+  ev('salida', 'Se alejó de la página');
+  $('#cover').hidden = false;
+}
+function retorno() {
+  if (!S.fueraDesde) return;
+  const seg = (Date.now() - S.fueraDesde) / 1000;
+  S.segFuera += seg; S.fueraDesde = 0;
+  ev('retorno', Math.round(seg) + ' s fuera · ' + (S.huboOculta ? 'cambió de pestaña o minimizó' : 'otra ventana o aplicación tomó el foco'));
+  const n = S.salidas, s = Math.round(S.segFuera);
+  $('#cv-txt').textContent = 'Saliste de la página ' + n + (n === 1 ? ' vez' : ' veces') + ' (' + s + ' s fuera en total). Cada salida queda registrada y se le informa a tu docente.';
+  persistir(); guardarYa();
+}
+function activarAnticopia() {
+  if (S.anticopia) return; S.anticopia = true;
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { if (S.fueraDesde) S.huboOculta = true; salida(); } else retorno(); });
+  window.addEventListener('blur', salida);
+  window.addEventListener('focus', retorno);
+  $('#cv-ok').addEventListener('click', () => { retorno(); $('#cover').hidden = true; });
+  window.addEventListener('beforeunload', e => { if (S.enQuiz && !S.entregado) { ev('cierra', 'Intentó cerrar o recargar la página'); guardarYa(); e.preventDefault(); e.returnValue = ''; } });
+}
+
+if (!CONFIG.API_URL) { const e = $('#err-ident'); e.textContent = 'Atención: falta configurar API_URL en este archivo. El quiz no funcionará hasta que se pegue la URL del servidor.'; e.hidden = false; }
+})();
+</script>
+</body>
+</html>
