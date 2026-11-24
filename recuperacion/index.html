@@ -43,6 +43,13 @@ h2{font-size:20px;margin:0 0 10px}
 h3{font-size:17px;margin:18px 0 6px}
 p{margin:0 0 12px}
 .muted{color:var(--muted)}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 28px}
+.pgdots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pd{min-width:46px;padding:7px 10px}
+.pd.cur{outline:3px solid var(--accent);outline-offset:1px}
+.pd.done{background:#e3f4ea;border-color:var(--ok);color:var(--ok)}
+.pd.part{background:var(--warn-soft);border-color:#e0a43a;color:var(--warn)}
+.pgleyenda{text-align:center;color:var(--muted);font-size:13px;margin:-18px 0 24px}
 .pill{display:inline-block;background:var(--accent-soft);color:var(--accent);padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700}
 label.f{display:block;font-weight:600;margin:14px 0 6px}
 input[type=text]{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
@@ -630,8 +637,8 @@ function tablaEl(t, b) {
 function renderQuiz() {
   const cont = $('#quiz'); cont.textContent = '';
   cont.appendChild(h('div', { class: 'note', text: 'Versión ' + (S.version || 1) + '. Si te piden contar casos, escribe solo el número. Cuando la respuesta es un porcentaje, escríbela con 1 decimal (por ejemplo 87,4). Puedes usar el botón Calculadora. Las respuestas se guardan solas mientras escribes.' }));
-  S.quiz.forEach(b => {
-    const card = h('div', { class: 'card' });
+  S.quiz.forEach((b, bi) => {
+    const card = h('div', { class: 'card qcard', 'data-i': String(bi) });
     card.appendChild(h('div', { class: 'qhead' }, h('h2', { text: 'Pregunta ' + b.num + '. ' + b.titulo }), h('span', { class: 'pill', text: pesoTxt(b.peso) + ' pts' })));
     b.enunciado.forEach(t => card.appendChild(h('p', { text: t })));
     if (b.matrices && b.matrices.length) {
@@ -674,11 +681,39 @@ function renderQuiz() {
     });
     cont.appendChild(card);
   });
-  armarAyuda(); actualizarProgreso();
+  // navegación: una pregunta por pantalla
+  const prev = h('button', { class: 'btn', type: 'button', id: 'pg-prev', text: '◀ Anterior' });
+  const next = h('button', { class: 'btn primary', type: 'button', id: 'pg-next', text: 'Siguiente ▶' });
+  const dots = h('div', { class: 'pgdots', id: 'pg-dots' });
+  S.quiz.forEach((b, bi) => { const d = h('button', { class: 'btn pd', type: 'button', text: 'P' + b.num, 'aria-label': 'Ir a la pregunta ' + b.num }); d.addEventListener('click', () => irPregunta(bi)); dots.appendChild(d); });
+  prev.addEventListener('click', () => irPregunta(S.pag - 1));
+  next.addEventListener('click', () => { if (S.pag >= S.quiz.length - 1) $('#btn-entregar').click(); else irPregunta(S.pag + 1); });
+  cont.appendChild(h('div', { class: 'pager' }, prev, dots, next));
+  cont.appendChild(h('p', { class: 'pgleyenda', text: 'Verde: pregunta completa. Naranja: le falta algo. Puedes volver a cualquier pregunta antes de entregar.' }));
+  if (typeof S.pag !== 'number' || S.pag < 0 || S.pag >= S.quiz.length) S.pag = 0;
+  armarAyuda(); irPregunta(S.pag, true);
+}
+function irPregunta(i, inicial) {
+  if (!S.quiz) return;
+  S.pag = Math.max(0, Math.min(S.quiz.length - 1, i));
+  $$('#quiz .qcard').forEach(c => { c.hidden = Number(c.dataset.i) !== S.pag; });
+  const prev = $('#pg-prev'), next = $('#pg-next');
+  if (prev) prev.disabled = S.pag === 0;
+  if (next) next.textContent = S.pag === S.quiz.length - 1 ? 'Revisar y entregar' : 'Siguiente ▶';
+  actualizarProgreso();
+  if (!inicial) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function totalPreguntas() { return S.quiz.reduce((n, b) => n + b.preguntas.length, 0); }
 function respondidas() { let n = 0; S.quiz.forEach(b => b.preguntas.forEach(q => { if (S.resp[q.id]) n++; })); return n; }
-function actualizarProgreso() { $('#prog').textContent = respondidas() + ' de ' + totalPreguntas() + ' respondidas'; }
+function actualizarProgreso() {
+  $('#prog').textContent = (S.quiz ? 'Pregunta ' + (S.pag + 1) + ' de ' + S.quiz.length + ' · ' : '') + respondidas() + ' de ' + totalPreguntas() + ' respondidas';
+  const dots = $$('#pg-dots .pd');
+  if (S.quiz) S.quiz.forEach((b, bi) => {
+    const d = dots[bi]; if (!d) return;
+    const n = b.preguntas.filter(q => S.resp[q.id]).length;
+    d.className = 'btn pd' + (n === b.preguntas.length ? ' done' : n > 0 ? ' part' : '') + (bi === S.pag ? ' cur' : '');
+  });
+}
 function cambio() { actualizarProgreso(); persistir(); programarGuardado(); }
 function persistir() { ls('quizm:' + S.codigo, JSON.stringify({ resp: S.resp, ts: ahoraServidor(), salidas: S.salidas, segFuera: Math.round(S.segFuera) })); }
 function programarGuardado() { clearTimeout(S.saveT); S.saveT = setTimeout(guardarYa, CONFIG.GUARDAR_CADA_MS); }
